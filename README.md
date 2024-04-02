@@ -1,9 +1,10 @@
 # reproduce step
 ## 1. clone this repository and set the model files.
   ```bash
-    git clone https://github.com/newgrit1004/EfficientSAM.git
+    git clone --recurse-submodules https://github.com/newgrit1004/EfficientSAM.git
     cd EfficientSAM
-    unzip weights/efficient_sam_vits.pt.zip && mv efficient_sam_vits.pt ./weights
+    unzip weights/efficient_sam_vits.pt.zip
+    mv efficient_sam_vits.pt ./weights
   ```
 
 ## 2. build the docker image
@@ -17,6 +18,15 @@
   # inside the container
   python export_to_onnx.py # generated onnx files are in "./weights" folder.
   python export_onnx_to_tensorflow.py # generated tensorflow files are in "./saved_model" folder.
+
+  # if python export_onnx_to_tensorflow.py is not executed,
+  # install the onnx_tf manually inside the container.
+  docker exec -it tfjs_test /bin/bash -c "cd /workspace && /bin/bash"
+  root@b9fb8b01ab27:/workspace# cd onnx-tensorflow/
+  root@b9fb8b01ab27:/workspace/onnx-tensorflow# pip install -e .
+  root@b9fb8b01ab27:/workspace/onnx-tensorflow# cd ../
+  root@b9fb8b01ab27:/workspace# python export_to_onnx.py
+  root@b9fb8b01ab27:/workspace# python export_onnx_to_tensorflow.py
   ```
 
 ## 3. compare torch model and tensorflow model result
