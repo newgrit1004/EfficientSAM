@@ -1,4 +1,4 @@
-#ONNX export code is from [labelme annotation tool](https://github.com/labelmeai/efficient-sam). Huge thanks to Kentaro Wada.
+# ONNX export code is from [labelme annotation tool](https://github.com/labelmeai/efficient-sam). Huge thanks to Kentaro Wada.
 
 import onnxruntime
 import torch
@@ -18,7 +18,7 @@ def export_onnx(onnx_model, output, dynamic_axes, dummy_inputs, output_names):
             f,
             export_params=True,
             verbose=False,
-            opset_version=17,
+            opset_version=12,
             do_constant_folding=True,
             input_names=list(dummy_inputs.keys()),
             output_names=output_names,

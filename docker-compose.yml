@@ -1,0 +1,21 @@
+# change device ids depending on your gpu environment
+version: "3.9"
+
+services:
+  tfjs_test:
+    image: export_onnx
+    container_name: tfjs_test
+    volumes:
+      - $PWD:/workspace
+    tty: true
+    stdin_open: true
+    ports:
+    - 8000:8000
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            device_ids: ['0']
+            capabilities: [gpu]

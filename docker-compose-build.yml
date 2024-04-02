@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  sd:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: export_onnx

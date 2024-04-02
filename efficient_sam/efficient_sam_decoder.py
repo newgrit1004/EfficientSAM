@@ -62,14 +62,25 @@ class PromptEncoder(nn.Module):
         point_embedding = self.pe_layer.forward_with_coords(
             points, self.input_image_size
         )
-        invalid_label_ids = torch.eq(labels, -1)[:,:,None]
-        point_label_ids = torch.eq(labels, 1)[:,:,None]
-        topleft_label_ids = torch.eq(labels, 2)[:,:,None]
-        bottomright_label_ids = torch.eq(labels, 3)[:,:,None]
-        point_embedding = point_embedding + self.invalid_points.weight[:,None,:] * invalid_label_ids
-        point_embedding = point_embedding + self.point_embeddings.weight[:,None,:] * point_label_ids
-        point_embedding = point_embedding + self.bbox_top_left_embeddings.weight[:,None,:] * topleft_label_ids
-        point_embedding = point_embedding + self.bbox_bottom_right_embeddings.weight[:,None,:] * bottomright_label_ids
+        invalid_label_ids = torch.eq(labels, -1)[:, :, None]
+        point_label_ids = torch.eq(labels, 1)[:, :, None]
+        topleft_label_ids = torch.eq(labels, 2)[:, :, None]
+        bottomright_label_ids = torch.eq(labels, 3)[:, :, None]
+        point_embedding = (
+            point_embedding + self.invalid_points.weight[:, None, :] * invalid_label_ids
+        )
+        point_embedding = (
+            point_embedding + self.point_embeddings.weight[:, None, :] * point_label_ids
+        )
+        point_embedding = (
+            point_embedding
+            + self.bbox_top_left_embeddings.weight[:, None, :] * topleft_label_ids
+        )
+        point_embedding = (
+            point_embedding
+            + self.bbox_bottom_right_embeddings.weight[:, None, :]
+            * bottomright_label_ids
+        )
         return point_embedding
 
     def forward(
@@ -190,9 +201,11 @@ class MaskDecoder(nn.Module):
                         kernel_size=2,
                         stride=2,
                     ),
-                    nn.GroupNorm(1, layer_dims)
-                    if idx < len(upscaling_layer_dims) - 1
-                    else nn.Identity(),
+                    (
+                        nn.GroupNorm(1, layer_dims)
+                        if idx < len(upscaling_layer_dims) - 1
+                        else nn.Identity()
+                    ),
                     activation(),
                 )
             )
@@ -256,9 +269,7 @@ class MaskDecoder(nn.Module):
         ) = image_embeddings.shape
 
         # Tile the image embedding for all queries.
-        image_embeddings_tiled = torch.tile(
-            image_embeddings[:, None, :, :, :], [1, max_num_queries, 1, 1, 1]
-        ).view(
+        image_embeddings_tiled = image_embeddings.repeat(1, max_num_queries, 1, 1).view(
             batch_size * max_num_queries,
             image_embed_dim_c,
             image_embed_dim_h,
